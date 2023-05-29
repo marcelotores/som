@@ -1,5 +1,6 @@
 import math
-
+import matplotlib.pyplot as plt
+import numpy as np
 class SOM:
 
     # Function here computes the winning vector
@@ -36,8 +37,11 @@ class SOM:
 def main():
 
     # Training Examples ( m, n )
-    T = [[1, 1, 0, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 0, 1, 1]]
-
+    #T = [[1, 1, 0, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 0, 1, 1], [1, 0, 1, 1], [0, 1, 1, 1], [0, 0, 0, 0]]
+    #T = np.array([[1, 1, 0, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 0, 1, 1], [1, 0, 1, 1], [0, 1, 1, 1], [0, 0, 0, 0]])
+    data = np.random.rand(100, 4)
+    T = data
+    # exit()
     m, n = len(T), len(T[0])
 
     # weight initialization ( n, C )
@@ -46,7 +50,7 @@ def main():
     # training
     ob = SOM()
 
-    epochs = 3
+    epochs = 1000
     alpha = 0.5
 
     for i in range(epochs):
@@ -67,6 +71,31 @@ def main():
 
     print("Test Sample s belongs to Cluster : ", J)
     print("Trained weights : ", weights)
+
+
+
+    # Plotar o mapa auto-organizável
+    plt.figure(figsize=(6, 6))
+
+    # Coordenadas dos neurônios no mapa
+    neuron_coords = np.array([[0, 0], [1, 0]])
+
+    # Plotar os neurônios do mapa
+    for i, coord in enumerate(neuron_coords):
+        plt.scatter(weights[i][0], weights[i][1], color='b', label=f'Neuron {i + 1}')
+
+    # Plotar os dados de treinamento
+    for sample in T:
+        plt.scatter(sample[0], sample[1], color='r')
+
+    # Plotar o teste sample
+    plt.scatter(s[0], s[1], color='g', label='Test Sample')
+
+    plt.title('Self-Organizing Map')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
