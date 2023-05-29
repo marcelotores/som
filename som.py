@@ -45,7 +45,7 @@ def main():
     m, n = len(T), len(T[0])
 
     # weight initialization ( n, C )
-    weights = [[0.2, 0.6, 0.5, 0.9], [0.8, 0.4, 0.7, 0.3]]
+    weights = [[0.2, 0.6, 0.5, 0.9], [0.8, 0.4, 0.7, 0.3],  [0.8, 0.4, 0.7, 0.3]]
     print(weights[0])
     # training
     ob = SOM()
@@ -78,7 +78,7 @@ def main():
     plt.figure(figsize=(6, 6))
 
     # Coordenadas dos neurônios no mapa
-    neuron_coords = np.array([[0, 0], [1, 0]])
+    neuron_coords = np.array([[0, 0], [1, 0], [0, 1]])
 
     # Plotar os neurônios do mapa
     for i, coord in enumerate(neuron_coords):
@@ -91,6 +91,8 @@ def main():
     # Plotar o teste sample
     plt.scatter(s[0], s[1], color='g', label='Test Sample')
 
+
+
     plt.title('Self-Organizing Map')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
@@ -100,3 +102,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
