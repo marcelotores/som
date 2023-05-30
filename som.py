@@ -12,8 +12,9 @@ class SOM:
 
         for i in range(len(sample)):
 
+            # Cada D0 é um neurônio, nesse caso, 2
             D0 = D0 + math.pow((sample[i] - weights[0][i]), 2)
-            D0 = D0 + math.pow((sample[i] - weights[0][i]), 2)
+            #D0 = D0 + math.pow((sample[i] - weights[0][i]), 2)
             D1 = D1 + math.pow((sample[i] - weights[1][i]), 2)
 
         # Selecting the cluster with smallest distance as winning cluster
@@ -39,14 +40,17 @@ def main():
     # Training Examples ( m, n )
     #T = [[1, 1, 0, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 0, 1, 1], [1, 0, 1, 1], [0, 1, 1, 1], [0, 0, 0, 0]]
     #T = np.array([[1, 1, 0, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 0, 1, 1], [1, 0, 1, 1], [0, 1, 1, 1], [0, 0, 0, 0]])
-    data = np.random.rand(100, 4)
+    data = np.random.rand(10, 4)
     T = data
-    # exit()
+    print(T)
+    print('--')
+
     m, n = len(T), len(T[0])
+    # m, n = 10, 4
 
     # weight initialization ( n, C )
-    weights = [[0.2, 0.6, 0.5, 0.9], [0.8, 0.4, 0.7, 0.3],  [0.8, 0.4, 0.7, 0.3]]
-    print(weights[0])
+    weights = [[0.2, 0.6, 0.5, 0.9], [0.8, 0.4, 0.7, 0.3]]
+
     # training
     ob = SOM()
 
@@ -78,7 +82,7 @@ def main():
     plt.figure(figsize=(6, 6))
 
     # Coordenadas dos neurônios no mapa
-    neuron_coords = np.array([[0, 0], [1, 0], [0, 1]])
+    neuron_coords = np.array([[0, 0], [1, 0]])
 
     # Plotar os neurônios do mapa
     for i, coord in enumerate(neuron_coords):

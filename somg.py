@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 class SelfOrganizingMap:
     def __init__(self, input_dim, output_dim):
         self.weights = np.random.rand(output_dim[0], output_dim[1], input_dim)
+        # weights = 10 10 2
 
     def train(self, data, num_epochs, learning_rate):
         for epoch in range(num_epochs):
@@ -26,29 +27,59 @@ class SelfOrganizingMap:
 
 # Exemplo de uso
 # Gerar dados de treinamento
-data = np.random.rand(100, 2)
-print(data)
-exit()
+data = np.random.rand(10, 4)
+
 
 # Criar e treinar o mapa auto-organizável
-input_dim = 2  # Dimensão das entradas
-output_dim = (10, 10)  # Dimensão da grade do mapa
+input_dim = 4  # Dimensão das entradas
+output_dim = (2, 2)  # Dimensão da grade do mapa
 num_epochs = 100  # Número de épocas de treinamento
 learning_rate = 0.1  # Taxa de aprendizado
+
+
 som = SelfOrganizingMap(input_dim, output_dim)
 som.train(data, num_epochs, learning_rate)
 
 # Obter os pesos treinados
 weights = som.get_weights()
 
-# Plotar o mapa auto-organizável
-plt.figure(figsize=(8, 8))
+# Plotar o mapa auto-organizável (scatter)
+# plt.figure(figsize=(8, 8))
+#
+# for x in range(output_dim[0]):
+#     for y in range(output_dim[1]):
+#         print(weights[x, y, 0], weights[x, y, 1])
+#         # Nesse caso ele usa as os pesos para exibir as coordenadas?
+#         plt.scatter(weights[x, y, 0], weights[x, y, 1],  color='b')
+# plt.scatter(data[:, 0], data[:, 1], color='r')
+# plt.title('Self-Organizing Map')
+# plt.xlabel('Feature 1')
+# plt.ylabel('Feature 2')
+# plt.show()
 
+# Plot
+plt.figure(figsize=(8, 8))
 for x in range(output_dim[0]):
     for y in range(output_dim[1]):
-        plt.scatter(weights[x, y, 0], weights[x, y, 1], color='b')
-plt.scatter(data[:, 0], data[:, 1], color='r')
+        print(weights[x, y, 0], weights[x, y, 1])
+        plt.plot(weights[x, y, 0], weights[x, y, 1], 'bo', markersize=4)
+for i in range(len(data)):
+    plt.plot(data[i, 0], data[i, 1], 'ro', markersize=4)
 plt.title('Self-Organizing Map')
 plt.xlabel('Feature 1')
 plt.ylabel('Feature 2')
 plt.show()
+
+# Matriz
+# Plotar o mapa auto-organizável como uma matriz
+# plt.figure(figsize=(8, 8))
+# plt.imshow(weights.reshape(output_dim[0]*output_dim[1], input_dim), aspect='auto', cmap='viridis')
+# plt.colorbar()
+# plt.title('Self-Organizing Map')
+# plt.xlabel('Feature Index')
+# plt.ylabel('Neuron Index')
+# plt.show()
+
+
+
+
