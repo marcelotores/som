@@ -1,0 +1,63 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.utils import shuffle
+
+class SelfOrganizingMap:
+    def __init__(self, input_dim, output_dim):
+        self.weights = np.random.rand(output_dim[0], output_dim[1], input_dim)
+
+    def train(self, data, num_epochs, learning_rate):
+        for epoch in range(num_epochs):
+            np.random.shuffle(data)
+
+            for sample in data:
+                best_match = self._find_best_matching_unit(sample)
+                self._update_weights(sample, best_match, learning_rate)
+
+    def _find_best_matching_unit(self, sample):
+        distances = np.linalg.norm(self.weights - sample, axis=2)
+        return np.unravel_index(np.argmin(distances), distances.shape)
+
+    def _update_weights(self, sample, best_match, learning_rate):
+        x, y = best_match
+        self.weights[x, y] += learning_rate * (sample - self.weights[x, y])
+
+    def get_weights(self):
+        return self.weights
+
+# Carregar o conjunto de dados Iris
+iris = load_iris()
+data = iris.data
+
+# Normalizar os dados
+data_normalized = (data - data.mean(axis=0)) / data.std(axis=0)
+
+# Criar e treinar o mapa auto-organizável
+input_dim = data.shape[1]  # Dimensão das entradas
+output_dim = (2, 2)  # Dimensão da grade do mapa
+num_epochs = 100  # Número de épocas de treinamento
+learning_rate = 0.1  # Taxa de aprendizado
+
+# Selecionar um subconjunto aleatório dos dados Iris para corresponder ao tamanho do mapa
+shuffled_data = shuffle(data_normalized, random_state=42)
+subset_data = shuffled_data[:output_dim[0] * output_dim[1]]
+
+som = SelfOrganizingMap(input_dim, output_dim)
+som.train(subset_data, num_epochs, learning_rate)
+
+# Obter os pesos treinados
+weights = som.get_weights()
+
+# Plotar o mapa auto-organizável como um gráfico de dispersão
+plt.figure(figsize=(8, 6))
+
+for x in range(output_dim[0]):
+    for y in range(output_dim[1]):
+        plt.scatter(weights[x, y, 0], weights[x, y, 1], c=(x * output_dim[0] + y), cmap='viridis')
+
+plt.colorbar(ticks=range(output_dim[0] * output_dim[1]))
+plt.title('Self-Organizing Map (Iris Dataset)')
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.show()
