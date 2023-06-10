@@ -35,7 +35,7 @@ output_dim = (10, 10)  # Dimensão da grade do mapa
 num_epochs = 100  # Número de épocas de treinamento
 learning_rate = 0.1  # Taxa de aprendizado
 
-som = MiniSom(output_dim[0], output_dim[1], input_dim, sigma=1.0, learning_rate=0.5)
+som = MiniSom(output_dim[0], output_dim[1], input_dim, sigma=1.0, learning_rate=learning_rate)
 som.train_random(data_normalized, num_epochs)
 
 # Obter os pesos treinados

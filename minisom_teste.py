@@ -44,6 +44,24 @@ plt.xlabel('Feature 1')
 plt.ylabel('Feature 2')
 plt.show()
 
+# Obter os rótulos das categorias
+target = np.genfromtxt(target, delimiter=',', usecols=(4), dtype=str)
+
+# Criar um dicionário para mapear as categorias para números
+category_dict = {'Iris-setosa': 0, 'Iris-versicolor': 1, 'Iris-virginica': 2}
+
+# Mapear os rótulos das categorias para números usando o dicionário
+target_numeric = np.array([category_dict[category] for category in target])
+
+# Plotar o gráfico da matriz com cores diferentes para cada categoria
+plt.figure(figsize=(8, 8))
+plt.imshow(weights.reshape(output_dim[0] * output_dim[1], input_dim), aspect='auto', cmap='viridis', vmin=0, vmax=2)
+plt.colorbar(ticks=[0, 1, 2], label='Category')
+plt.title('Self-Organizing Map (Iris Dataset)')
+plt.xlabel('Feature Index')
+plt.ylabel('Neuron Index')
+plt.show()
+
 # Plotar o mapa auto-organizável como uma matriz
 #plt.figure(figsize=(8, 8))
 #plt.imshow(weights.reshape(output_dim[0] * output_dim[1], input_dim), aspect='auto', cmap='viridis')
