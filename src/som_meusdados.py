@@ -34,7 +34,8 @@ iris = load_iris()
 # train and test split
 train_x, test_x, train_y, test_y = train_test_split(data_x, data_y, test_size=0.2, random_state=42)
 print(train_x.shape, train_y.shape, test_x.shape, test_y.shape) # check the shapes
-
+train_x = test_x
+train_y = test_y
 # Helper functions
 
 # Data Normalisation
@@ -74,12 +75,12 @@ def decay(step, max_steps,max_learning_rate,max_m_dsitance):
 
 
 # hyperparameters
-num_rows = 10
-num_cols = 10
+num_rows = 4
+num_cols = 4
 max_m_dsitance = 4
 max_learning_rate = 0.5
 max_steps = int(7.5*10e3)
-max_steps = 5000
+max_steps = 50000
 # num_nurons = 5*np.sqrt(train_x.shape[0])
 # grid_size = ceil(np.sqrt(num_nurons))
 # print(grid_size)
@@ -93,6 +94,7 @@ num_dims = train_x_norm.shape[1] # numnber of dimensions in the input data
 np.random.seed(40)
 som = np.random.random_sample(size=(num_rows, num_cols, num_dims)) # map construction
 
+errors = []  # Lista para armazenar os valores de erro
 
 # start training iterations
 for step in range(max_steps):
@@ -108,6 +110,8 @@ for step in range(max_steps):
       if m_distance([row, col], winner) <= neighbourhood_range:
         som[row][col] += learning_rate*(train_x_norm[t]-som[row][col]) #update neighbour's weight
 
+  error = e_distance(train_x_norm[t], som[winner[0]][winner[1]])
+  errors.append(error)
 print("SOM training completed")
 
 # collecting labels
@@ -133,18 +137,21 @@ for row in range(num_rows):
   for col in range(num_cols):
     label_list = map[row][col]
     if len(label_list) == 0:
-      label = 2
+      #pass
+      label = 0
     else:
       label = max(label_list, key=label_list.count)
 
     label_map[row][col] = label
 print(label_map)
 title = ('Iteration ' + str(max_steps))
-cmap = colors.ListedColormap(['tab:green', 'tab:red', 'tab:orange'])
+cmap = colors.ListedColormap(['tab:green', 'tab:blue', 'tab:red', 'tab:purple'])
 plt.imshow(label_map, cmap=cmap)
 plt.colorbar()
 plt.title(title)
 plt.show()
+
+
 
 # test data
 
@@ -163,3 +170,10 @@ for t in range(data.shape[0]):
  winner_labels.append(predicted)
 
 print("Accuracy: ", accuracy_score(test_y, np.array(winner_labels)))
+
+# Plotar gráfico de erro
+plt.plot(errors)
+plt.xlabel("Iteration")
+plt.ylabel("Error")
+plt.title("Training Error")
+plt.show()
