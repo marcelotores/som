@@ -71,7 +71,7 @@ def decay(step, max_steps,max_learning_rate,max_m_dsitance):
   neighbourhood_range = ceil(coefficient * max_m_dsitance)
   return learning_rate, neighbourhood_range
 
-learning_rate, neighbourhood_range = decay(0, 5000, 0.5, 4)
+
 
 # hyperparameters
 num_rows = 10
