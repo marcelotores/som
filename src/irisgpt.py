@@ -14,7 +14,7 @@ data_normalized = (data - data.mean(axis=0)) / data.std(axis=0)
 # Criar e treinar o mapa auto-organizável
 input_dim = data_normalized.shape[1]  # Dimensão das entradas
 output_dim = (10, 10)  # Dimensão da grade do mapa
-num_epochs = 100000  # Número de épocas de treinamento
+num_epochs = 1000  # Número de épocas de treinamento
 learning_rate = 0.1  # Taxa de aprendizado
 
 som = MiniSom(output_dim[0], output_dim[1], input_dim, sigma=1.0, learning_rate=learning_rate)

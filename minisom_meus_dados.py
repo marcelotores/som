@@ -1,79 +1,213 @@
+#https://towardsdatascience.com/understanding-self-organising-map-neural-network-with-python-code-7a77f501e985
 import numpy as np
-import matplotlib.pyplot as plt
+from numpy.ma.core import ceil
+from scipy.spatial import distance #distance calculation
+from sklearn.preprocessing import MinMaxScaler #normalisation
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score #scoring
 from sklearn.datasets import load_iris
-from minisom import MiniSom
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+from matplotlib import animation, colors
 import ut
 
-# Carregar o conjunto de dados Iris
-iris = load_iris()
-data = iris.data
-target = iris.target
-
-################
-
+################# Dados - Ensaio de Baumann #################
 data3 = ut.im_data(3)
-#print(np.count_nonzero(data3[:, 24] == 1))
 
-u1 = data3[0:82, :]
-u2 = data3[82:164, :]
-u3 = data3[175:257, :]
-u1_u2_u3 = np.concatenate((u1, u2, u3), axis=0)
+c1, c2, c3 = data3[0:82, :], data3[82:164, :], data3[175:257, :]
+data_file = np.concatenate((c1, c2, c3), axis=0)
 
-# Normalizando os dados
-u1_u2_u3 /= np.max(u1_u2_u3, axis=0)
+#data_x = data_file[:, :24]
+data_x = data_file[:, [0, 1, 2, 3, 4, 7, 8, 21]]
 
-
-################
-
-# Normalizar os dados
-#data_normalized = (data - data.mean(axis=0)) / data.std(axis=0)
-data_normalized = u1_u2_u3
-
-# Criar e treinar o mapa auto-organizável
-input_dim = data_normalized.shape[1]  # Dimensão das entradas
-output_dim = (10, 10)  # Dimensão da grade do mapa
-num_epochs = 100  # Número de épocas de treinamento
-learning_rate = 0.1  # Taxa de aprendizado
-
-som = MiniSom(output_dim[0], output_dim[1], input_dim, sigma=1.0, learning_rate=learning_rate)
-som.train_random(data_normalized, num_epochs)
-
-# Obter os pesos treinados
-weights = som.get_weights()
-
-# Mapear as instâncias para os neurônios vencedores
-mapped = som.win_map(data_normalized)
-
-# Criar uma matriz de coordenadas dos neurônios
-neuron_positions = np.array([[i, j] for i in range(output_dim[0]) for j in range(output_dim[1])])
+data_y = data_file[:, 24]
+#data_y = data_file[:, 24].reshape(data_file.shape[0], 1)
 
 
-# Plotar o mapa auto-organizável como um gráfico de dispersão
-plt.figure(figsize=(8, 6))
+################# Íris #################
 
-for i, (x, y) in enumerate(neuron_positions):
-    neuron_data = mapped[(x, y)]
-    if neuron_data:
-        neuron_data = np.array(neuron_data)
-        plt.scatter(neuron_data[:, 0], neuron_data[:, 1], color=plt.cm.viridis(i / (output_dim[0] * output_dim[1])))
+iris = load_iris()
+#data_x = iris.data
+#data_y = iris.target
 
-plt.colorbar(ticks=range(output_dim[0] * output_dim[1]))
-plt.title('Self-Organizing Map (Iris Dataset)')
-plt.xlabel('Feature 1')
-plt.ylabel('Feature 2')
-plt.show()
 
-# Plotar o mapa auto-organizável como uma matriz
-#plt.figure(figsize=(8, 8))
-#plt.imshow(weights.reshape(output_dim[0] * output_dim[1], input_dim), aspect='auto', cmap='viridis')
-#plt.colorbar()
-#plt.title('Self-Organizing Map (Iris Dataset)')
-#plt.xlabel('Feature Index')
-#plt.ylabel('Neuron Index')
-#plt.show()
+# train and test split
+train_x, test_x, train_y, test_y = train_test_split(data_x, data_y, test_size=0.2, random_state=42)
+print(train_x.shape, train_y.shape, test_x.shape, test_y.shape) # check the shapes
+#train_x = test_x
+#train_y = test_y
 
-# Plotting the response for each pattern in the iris dataset
-plt.bone()
-plt.pcolor(som.distance_map().T)  # plotting the distance map as background
+
+################################ Teste
+
+train_x = np.array([
+  [2, 0.5, 7],
+  [4, 0.7, 1],
+  [8, 0.2, 4],
+  [2, 0.8, 2]
+])
+
+################################ Fim Teste
+
+# Helper functions
+# Data Normalisation
+def minmax_scaler(data):
+  scaler = MinMaxScaler()
+  scaled = scaler.fit_transform(data)
+  return scaled
+
+# Euclidean distance
+def e_distance(x,y):
+  return distance.euclidean(x, y)
+
+# Manhattan distance
+def m_distance(x,y):
+  return distance.cityblock(x,y)
+
+# Best Matching Unit search
+def winning_neuron(data, t, som, num_rows, num_cols):
+
+  winner = [0, 0]
+  shortest_distance = np.sqrt(data.shape[1]) # initialise with max distance
+  #print('shortest_distance: ', shortest_distance)
+
+  input_data = data[t]
+  for row in range(num_rows):
+    for col in range(num_cols):
+      # Calcula a disntância euclidiana entre a amostra (escolhida aleatoreamente) e todos os neurônios.
+      # O neurônio vencedor (menor distância) será retornado
+      distance = e_distance(som[row][col], data[t])
+
+      if distance < shortest_distance:
+        shortest_distance = distance
+        winner = [row, col]
+
+  return winner
+
+# Learning rate and neighbourhood range calculation
+def decay(step, max_steps,max_learning_rate,max_m_dsitance):
+  coefficient = 1.0 - (np.float64(step)/max_steps)
+  learning_rate = coefficient*max_learning_rate
+  neighbourhood_range = ceil(coefficient * max_m_dsitance)
+  return learning_rate, neighbourhood_range
+
+
+
+# hyperparameters
+num_rows = 2
+num_cols = 2
+max_m_dsitance = 4
+max_learning_rate = 0.5
+max_steps = int(7.5*10e3)
+max_steps = 5000
+# num_nurons = 5*np.sqrt(train_x.shape[0])
+# grid_size = ceil(np.sqrt(num_nurons))
+# print(grid_size)
+
+#mian function
+
+train_x_norm = minmax_scaler(train_x) # normalisation
+
+# initialising self-organising map
+num_dims = train_x_norm.shape[1] # numnber of dimensions in the input data
+np.random.seed(40)
+
+## Grid de números aleatórios de 0.0 a 1.0.
+## Suas dimentçõs são, número de neurônios na linhas x números de neurônios colunas x quantidade de atributos
+## dos dados de entrada (Também conhecida com matriz de peso)
+som = np.random.random_sample(size=(num_rows, num_cols, num_dims)) # map construction
+
+errors = []  # Lista para armazenar os valores de erro
+
+# start training iterations
+for step in range(max_steps):
+    if (step + 1) % 1000 == 0:
+        print("Iteration: ", step + 1)  # print out the current iteration for every 1k
+    learning_rate, neighbourhood_range = decay(step, max_steps, max_learning_rate, max_m_dsitance)
+    print(train_x_norm)
+    print()
+    for t in range(train_x_norm[0]):
+        print(t)
+        # Gera um número aleatório de 0 a quantidade de amostras (120)
+        #t = np.random.randint(0, high=train_x_norm.shape[0]) # random index of traing data
+
+        # recebe como parâmetro os dados de treinamento, o número aleatório t, a rede som,
+        # o número de linhas e colunas da grid
+
+        # recebe as coordenadas do neurônio vencedor (para determinada amostra t)
+        winner = winning_neuron(train_x_norm, t, som, num_rows, num_cols)
+
+        for row in range(num_rows):
+            for col in range(num_cols):
+                if m_distance([row, col], winner) <= neighbourhood_range:
+                    som[row][col] += learning_rate*(train_x_norm[t]-som[row][col]) #update neighbour's weight
+
+      #error = e_distance(train_x_norm[t], som[winner[0]][winner[1]])
+      #errors.append(error)
+
+    print("SOM training completed")
+
+# collecting labels
+
+label_data = train_y
+map = np.empty(shape=(num_rows, num_cols), dtype=object)
+
+for row in range(num_rows):
+  for col in range(num_cols):
+    map[row][col] = [] # empty list to store the label
+
+for t in range(train_x_norm.shape[0]):
+  if (t+1) % 1000 == 0:
+    print("sample data: ", t+1)
+  winner = winning_neuron(train_x_norm, t, som, num_rows, num_cols)
+  map[winner[0]][winner[1]].append(label_data[t]) # label of winning neuron
+
+
+# construct label map
+label_map = np.zeros(shape=(num_rows, num_cols), dtype=np.int64)
+
+for row in range(num_rows):
+  for col in range(num_cols):
+    label_list = map[row][col]
+    if len(label_list) == 0:
+      #pass
+      label = 3
+    else:
+      label = max(label_list, key=label_list.count)
+
+    label_map[row][col] = label
+print(label_map)
+title = ('Iteration ' + str(max_steps))
+cmap = colors.ListedColormap(['tab:green', 'tab:blue', 'tab:red', 'tab:purple'])
+plt.imshow(label_map, cmap=cmap)
 plt.colorbar()
+plt.title(title)
 plt.show()
+
+
+
+# test data
+
+# using the trained som, search the winning node of corresponding to the test data
+# get the label of the winning node
+
+data = minmax_scaler(test_x) # normalisation
+
+winner_labels = []
+
+for t in range(data.shape[0]):
+ winner = winning_neuron(data, t, som, num_rows, num_cols)
+ row = winner[0]
+ col = winner[1]
+ predicted = label_map[row][col]
+ winner_labels.append(predicted)
+
+print("Accuracy: ", accuracy_score(test_y, np.array(winner_labels)))
+
+
+# Plotar gráfico de erro
+#plt.plot(errors)
+#plt.xlabel("Iteration")
+#plt.ylabel("Error")
+#plt.title("Training Error")
+#plt.show()

@@ -34,10 +34,22 @@ iris = load_iris()
 # train and test split
 train_x, test_x, train_y, test_y = train_test_split(data_x, data_y, test_size=0.2, random_state=42)
 print(train_x.shape, train_y.shape, test_x.shape, test_y.shape) # check the shapes
-train_x = test_x
-train_y = test_y
-# Helper functions
+#train_x = test_x
+#train_y = test_y
 
+
+################################ Teste
+
+#train_x = np.array([
+#  [2, 0.5, 7],
+#  [4, 0.7, 1],
+#  [8, 0.2, 4],
+#  [2, 0.8, 2]
+#])
+
+################################ Fim Teste
+
+# Helper functions
 # Data Normalisation
 def minmax_scaler(data):
   scaler = MinMaxScaler()
@@ -54,15 +66,22 @@ def m_distance(x,y):
 
 # Best Matching Unit search
 def winning_neuron(data, t, som, num_rows, num_cols):
+
   winner = [0, 0]
   shortest_distance = np.sqrt(data.shape[1]) # initialise with max distance
+  #print('shortest_distance: ', shortest_distance)
+
   input_data = data[t]
   for row in range(num_rows):
     for col in range(num_cols):
+      # Calcula a disntância euclidiana entre a amostra (escolhida aleatoreamente) e todos os neurônios.
+      # O neurônio vencedor (menor distância) será retornado
       distance = e_distance(som[row][col], data[t])
+
       if distance < shortest_distance:
         shortest_distance = distance
         winner = [row, col]
+
   return winner
 
 # Learning rate and neighbourhood range calculation
@@ -75,12 +94,12 @@ def decay(step, max_steps,max_learning_rate,max_m_dsitance):
 
 
 # hyperparameters
-num_rows = 4
-num_cols = 4
+num_rows = 2
+num_cols = 2
 max_m_dsitance = 4
 max_learning_rate = 0.5
 max_steps = int(7.5*10e3)
-max_steps = 50000
+max_steps = 5000
 # num_nurons = 5*np.sqrt(train_x.shape[0])
 # grid_size = ceil(np.sqrt(num_nurons))
 # print(grid_size)
@@ -92,6 +111,10 @@ train_x_norm = minmax_scaler(train_x) # normalisation
 # initialising self-organising map
 num_dims = train_x_norm.shape[1] # numnber of dimensions in the input data
 np.random.seed(40)
+
+## Grid de números aleatórios de 0.0 a 1.0.
+## Suas dimentçõs são, número de neurônios na linhas x números de neurônios colunas x quantidade de atributos
+## dos dados de entrada (Também conhecida com matriz de peso)
 som = np.random.random_sample(size=(num_rows, num_cols, num_dims)) # map construction
 
 errors = []  # Lista para armazenar os valores de erro
@@ -102,16 +125,27 @@ for step in range(max_steps):
     print("Iteration: ", step+1) # print out the current iteration for every 1k
   learning_rate, neighbourhood_range = decay(step, max_steps, max_learning_rate, max_m_dsitance)
 
+  # Gera um número aleatório de 0 a quantidade de amostras (120)
   t = np.random.randint(0, high=train_x_norm.shape[0]) # random index of traing data
 
+  # recebe como parâmetro os dados de treinamento, o número aleatório t, a rede som,
+  # o número de linhas e colunas da grid
+
+  # recebe as coordenadas do neurônio vencedor (para determinada amostra t)
   winner = winning_neuron(train_x_norm, t, som, num_rows, num_cols)
+
   for row in range(num_rows):
     for col in range(num_cols):
+      # Aqui é feito o cálculo de vizinhaça; por exemplo, para row, col = 0, 0 e winter (neurônio vencedor) = 1, 0,
+      # É calculada a distância de Manhatan entre essas duas posições. O limite dessa distância é neighbourhood_range,
+      # valor que vai sendo reduzido com o passar das iterações.
+
       if m_distance([row, col], winner) <= neighbourhood_range:
         som[row][col] += learning_rate*(train_x_norm[t]-som[row][col]) #update neighbour's weight
 
   error = e_distance(train_x_norm[t], som[winner[0]][winner[1]])
   errors.append(error)
+
 print("SOM training completed")
 
 # collecting labels
@@ -138,7 +172,7 @@ for row in range(num_rows):
     label_list = map[row][col]
     if len(label_list) == 0:
       #pass
-      label = 0
+      label = 3
     else:
       label = max(label_list, key=label_list.count)
 
@@ -171,9 +205,10 @@ for t in range(data.shape[0]):
 
 print("Accuracy: ", accuracy_score(test_y, np.array(winner_labels)))
 
+
 # Plotar gráfico de erro
-plt.plot(errors)
-plt.xlabel("Iteration")
-plt.ylabel("Error")
-plt.title("Training Error")
-plt.show()
+#plt.plot(errors)
+#plt.xlabel("Iteration")
+#plt.ylabel("Error")
+#plt.title("Training Error")
+#plt.show()
