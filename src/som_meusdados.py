@@ -27,8 +27,8 @@ data_y = data_file[:, 24]
 ################# Íris #################
 
 iris = load_iris()
-#data_x = iris.data
-#data_y = iris.target
+data_x = iris.data
+data_y = iris.target
 
 
 # train and test split
@@ -94,12 +94,12 @@ def decay(step, max_steps,max_learning_rate,max_m_dsitance):
 
 
 # hyperparameters
-num_rows = 2
-num_cols = 2
+num_rows = 3
+num_cols = 3
 max_m_dsitance = 4
 max_learning_rate = 0.5
 max_steps = int(7.5*10e3)
-max_steps = 5000
+max_steps = 200
 # num_nurons = 5*np.sqrt(train_x.shape[0])
 # grid_size = ceil(np.sqrt(num_nurons))
 # print(grid_size)
@@ -157,11 +157,13 @@ for row in range(num_rows):
   for col in range(num_cols):
     map[row][col] = [] # empty list to store the label
 
+
 for t in range(train_x_norm.shape[0]):
   if (t+1) % 1000 == 0:
     print("sample data: ", t+1)
   winner = winning_neuron(train_x_norm, t, som, num_rows, num_cols)
   map[winner[0]][winner[1]].append(label_data[t]) # label of winning neuron
+
 
 
 # construct label map

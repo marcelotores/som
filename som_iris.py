@@ -35,7 +35,7 @@ data_normalized = (data - data.mean(axis=0)) / data.std(axis=0)
 
 # Criar e treinar o mapa auto-organizável
 input_dim = data.shape[1]  # Dimensão das entradas
-output_dim = (2, 2)  # Dimensão da grade do mapa
+output_dim = (3, 3)  # Dimensão da grade do mapa
 num_epochs = 1000  # Número de épocas de treinamento
 learning_rate = 0.1  # Taxa de aprendizado
 
@@ -50,16 +50,16 @@ weights = som.get_weights()
 target = iris.target
 
 # Plotar o mapa auto-organizável como uma matriz
-#plt.figure(figsize=(10, 10))
-#plt.imshow(weights.reshape(output_dim[0]*output_dim[1], input_dim), aspect='auto', cmap='viridis')
-#plt.colorbar()
-#plt.title('Self-Organizing Map (Iris Dataset)')
-#plt.xlabel('Feature Index')
-#plt.ylabel('Neuron Index')
-#plt.xticks(range(input_dim), iris.feature_names, rotation=45)
-#plt.yticks(range(output_dim[0]*output_dim[1]), range(output_dim[0]*output_dim[1]))
-#plt.tight_layout()
-#plt.show()
+plt.figure(figsize=(10, 10))
+plt.imshow(weights.reshape(output_dim[0]*output_dim[1], input_dim), aspect='auto', cmap='viridis')
+plt.colorbar()
+plt.title('Self-Organizing Map (Iris Dataset)')
+plt.xlabel('Feature Index')
+plt.ylabel('Neuron Index')
+plt.xticks(range(input_dim), iris.feature_names, rotation=45)
+plt.yticks(range(output_dim[0]*output_dim[1]), range(output_dim[0]*output_dim[1]))
+plt.tight_layout()
+plt.show()
 
 
 # Plot
@@ -75,13 +75,13 @@ plt.xlabel('Feature 1')
 plt.ylabel('Feature 2')
 plt.show()
 
-#plt.figure(figsize=(8, 6))
+plt.figure(figsize=(8, 6))
 
-#for i, (x, y) in enumerate(weights.reshape(-1, 2)):
-#    plt.scatter(x, y, c=target[i], cmap='viridis')
+for i, (x, y) in enumerate(weights.reshape(-1, 2)):
+    plt.scatter(x, y, c=target[i], cmap='viridis')
 
-#plt.colorbar(ticks=np.unique(target))
-#plt.title('Self-Organizing Map (Iris Dataset)')
-#plt.xlabel('Feature 1')
-#plt.ylabel('Feature 2')
-#plt.show()
+plt.colorbar(ticks=np.unique(target))
+plt.title('Self-Organizing Map (Iris Dataset)')
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.show()
